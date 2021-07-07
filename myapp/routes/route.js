@@ -2,6 +2,10 @@ module.exports = app => {
   const students = require("../controllers/student_controller");
   const teachers = require("../controllers/teacher_controller");
   const user = require("../controllers/login_controller");
+  const token = require("../controllers/token_controller");
+
+  /**** Test ****/
+  app.post("/token/test", token.test);
 
   /**** Student ****/
   // Create Student
@@ -41,4 +45,11 @@ module.exports = app => {
 
   // Sign In
   app.post("/users/signin", user.signIn)
+
+  /**** Token *****/
+  // regenerate refresh token
+  app.post("/token/regenerate_refresh_token", token.regenerate_refresh_token);
+
+  // regenerate access token
+  app.post("/token/regenerate_access_token", token.regenerate_access_token);
 };

@@ -1,6 +1,7 @@
-const Teacher = require("../models/teacher_model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const Teacher = require("../models/teacher_model");
+const Token = require("../controllers/token_controller");
 
 // sign up
 exports.signUp = (req, res) => {
@@ -32,8 +33,35 @@ exports.signUp = (req, res) => {
                     message: err.message
                 });
             } else {
-                // send result
-                res.send(data);
+                Token.get_token(data.id, (err, result) => {
+                    if(err){
+                        res.status(500).send({
+                            message: "failed get token"
+                        });
+                    } else {
+                        // send result
+                        jwt.verify(result.refresh_token, "jwtsecret", (err, payload) => {
+                            if(err){
+                                // invalid signature
+                                res.status(500).send({
+                                    message: "failed create access token"
+                                });    
+                            } else {
+                                // valid signature
+                                let decoded = jwt.decode(result.refresh_token);
+                                let token_body = {
+                                    id: decoded.id
+                                };
+                                let new_access_token = jwt.sign(token_body, "jwtsecret", {
+                                    expiresIn: '3h'
+                                });
+                                console.log("access token is " + new_access_token);
+                                res.setHeader("jwt-access-token", new_access_token); // set access token
+                                res.send(data);
+                            }
+                        });
+                    }
+                });
             }
         });
     });
@@ -71,19 +99,40 @@ exports.signIn = (req, res) => {
                 });
             } else {
                 // success login
-                // make token
-                req.body.password=null; // against password leak
-                let token = jwt.sign(req.body, "jwtsecret", {
-                    expiresIn: '1h'
+                Token.get_token(req.body.id, (err, result) => {
+                    if(err){
+                        res.status(404).send({
+                            message: "failed get token"
+                        });
+                    } else {
+                        // send result
+                        jwt.verify(result.refresh_token, "jwtsecret", (err, payload) => {
+                            if(err){
+                                // invalid signature
+                                res.status(500).send({
+                                    message: "failed create access token"
+                                });    
+                            } else {
+                                // valid signature
+                                let decoded = jwt.decode(result.refresh_token);
+                                let token_body = {
+                                    id: decoded.id
+                                };
+                                let new_access_token = jwt.sign(token_body, "jwtsecret", {
+                                    expiresIn: '3h'
+                                });
+                                console.log("access token is " + new_access_token);
+                                console.log("refresh token is " + result.refresh_token);
+                                res.setHeader("jwt-access-token", new_access_token); // set access token
+                                res.setHeader("jwt-refresh-token", result.refresh_token); // set refresh token
+                                res.status(200).send({
+                                    message: "login success"
+                                });
+                            }
+                        });                 
+                    }
                 });
-                
-                //send result
-                console.log("token is "+token);
-                res.setHeader("jwt-token", token); // set token
-                res.status(200).send({
-                    message: "login success"
-                });
-            }   
-        } 
+            }
+        }
     });
 }
