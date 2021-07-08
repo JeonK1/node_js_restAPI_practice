@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const Token = require("../models/token_model");
+require('dotenv').config()
 
 // if id exists get refreshToken, else Create New Token and get refreshToken
 exports.get_token = (id, res) => {
@@ -11,8 +12,8 @@ exports.get_token = (id, res) => {
                 let token_body = {
                     id: id
                 };
-                let new_refresh_token = jwt.sign(token_body, "jwtsecret", {
-                    expiresIn: '7d'
+                let new_refresh_token = jwt.sign(token_body, process.env.JWT_SECRET_KEY, {
+                    expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRE
                 });
                 const token = new Token({
                     id: id,
@@ -40,7 +41,7 @@ exports.get_token = (id, res) => {
 
 exports.regenerate_refresh_token = (req, res) => {
     let refresh_token = req.get("jwt-refresh-token");
-    jwt.verify(refresh_token, "jwtsecret", (err, payload) => {
+    jwt.verify(refresh_token, process.env.JWT_SECRET_KEY, (err, payload) => {
         if(err){
             // invalid signature
             res.status(500).send({
@@ -74,8 +75,8 @@ exports.regenerate_refresh_token = (req, res) => {
                         let token_body = {
                             id: decoded.id
                         };
-                        let new_refresh_token = jwt.sign(token_body, "jwtsecret", {
-                            expiresIn: '7d'
+                        let new_refresh_token = jwt.sign(token_body, process.env.JWT_SECRET_KEY, {
+                            expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRE
                         });
                         // Save in database
                         Token.updateById(decoded.id, new_refresh_token, (err, data) => {
@@ -133,7 +134,7 @@ exports.regenerate_access_token = (req, res) => {
                             id: decoded.id
                         };
                         let new_access_token = jwt.sign(token_body, "jwtsecret", {
-                            expiresIn: '3h'
+                            expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRE
                         });
                         res.setHeader("jwt-access-token", new_access_token);
                         res.status(200).send({

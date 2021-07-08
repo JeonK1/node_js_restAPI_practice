@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Teacher = require("../models/teacher_model");
 const Token = require("../controllers/token_controller");
+require('dotenv').config();
 
 // sign up
 exports.signUp = (req, res) => {
@@ -40,7 +41,7 @@ exports.signUp = (req, res) => {
                         });
                     } else {
                         // send result
-                        jwt.verify(result.refresh_token, "jwtsecret", (err, payload) => {
+                        jwt.verify(result.refresh_token, process.env.JWT_SECRET_KEY, (err, payload) => {
                             if(err){
                                 // invalid signature
                                 res.status(500).send({
@@ -52,8 +53,8 @@ exports.signUp = (req, res) => {
                                 let token_body = {
                                     id: decoded.id
                                 };
-                                let new_access_token = jwt.sign(token_body, "jwtsecret", {
-                                    expiresIn: '3h'
+                                let new_access_token = jwt.sign(token_body, process.env.JWT_SECRET_KEY, {
+                                    expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRE
                                 });
                                 console.log("access token is " + new_access_token);
                                 res.setHeader("jwt-access-token", new_access_token); // set access token
@@ -106,7 +107,7 @@ exports.signIn = (req, res) => {
                         });
                     } else {
                         // send result
-                        jwt.verify(result.refresh_token, "jwtsecret", (err, payload) => {
+                        jwt.verify(result.refresh_token, process.env.JWT_SECRET_KEY, (err, payload) => {
                             if(err){
                                 // invalid signature
                                 res.status(500).send({
@@ -118,8 +119,8 @@ exports.signIn = (req, res) => {
                                 let token_body = {
                                     id: decoded.id
                                 };
-                                let new_access_token = jwt.sign(token_body, "jwtsecret", {
-                                    expiresIn: '3h'
+                                let new_access_token = jwt.sign(token_body, process.env.JWT_SECRET_KEY, {
+                                    expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRE
                                 });
                                 console.log("access token is " + new_access_token);
                                 console.log("refresh token is " + result.refresh_token);

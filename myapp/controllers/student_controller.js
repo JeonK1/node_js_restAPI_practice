@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const Student = require("../models/student_model");
+require('dotenv').config();
 
 // Create
 exports.create = (req, res) => {
@@ -12,7 +13,7 @@ exports.create = (req, res) => {
     } else {
         // validate access token
         let access_token = req.get("jwt-access-token");
-        jwt.verify(access_token, "jwtsecret", (err, payload) => {
+        jwt.verify(access_token, process.env.JWT_SECRET_KEY, (err, payload) => {
             if(err){
                 // invalid acccess token
                 res.status(500).send({
@@ -53,7 +54,7 @@ exports.update = (req, res) => {
     } else {
         // validate access token
         let access_token = req.get("jwt-access-token");
-        jwt.verify(access_token, "jwtsecret", (err, payload) => {
+        jwt.verify(access_token, process.env.JWT_SECRET_KEY, (err, payload) => {
             if(err){
                 // invalid acccess token
                 res.status(500).send({
@@ -118,7 +119,7 @@ exports.findOne = (req, res) => {
 exports.delete = (req, res) => {
     // validate access token
     let access_token = req.get("jwt-access-token");
-    jwt.verify(access_token, "jwtsecret", (err, payload) => {
+    jwt.verify(access_token, process.env.JWT_SECRET_KEY, (err, payload) => {
         if(err){
             // invalid acccess token
             res.status(500).send({
