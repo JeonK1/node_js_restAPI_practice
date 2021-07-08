@@ -44,7 +44,7 @@ exports.regenerate_refresh_token = (req, res) => {
     jwt.verify(refresh_token, process.env.JWT_SECRET_KEY, (err, payload) => {
         if(err){
             // invalid signature
-            res.status(500).send({
+            res.status(401).send({
                 message: "invalid refresh_token (signature)"
             })
         } else {
@@ -54,7 +54,7 @@ exports.regenerate_refresh_token = (req, res) => {
                 if(err){
                     if(err.kind === "not_found"){
                         // not exists id in db error
-                        res.status(500).send({
+                        res.status(403).send({
                             message: "invalid refresh_token (id)"
                         });
                     } else {
@@ -67,7 +67,7 @@ exports.regenerate_refresh_token = (req, res) => {
                     // exists id in db
                     if(refresh_token !== result.refresh_token){
                         // invalid refresh_token
-                        res.status(500).send({
+                        res.status(403).send({
                             message: "invalid refresh token (refresh_token)"
                         });
                     } else {
@@ -102,7 +102,7 @@ exports.regenerate_access_token = (req, res) => {
     jwt.verify(refresh_token, "jwtsecret", (err, payload) => {
         if(err){
             // invalid signature
-            res.status(500).send({
+            res.status(401).send({
                 message: "invalid refresh_token (signature)"
             })
         } else {
@@ -112,7 +112,7 @@ exports.regenerate_access_token = (req, res) => {
                 if(err){
                     if(err.kind === "not_found"){
                         // not exists id in db error
-                        res.status(500).send({
+                        res.status(403).send({
                             message: "invalid refresh_token (id)"
                         });
                     } else {
@@ -125,7 +125,7 @@ exports.regenerate_access_token = (req, res) => {
                     // exists id in db
                     if(refresh_token !== result.refresh_token){
                         // invalid refresh_token
-                        res.status(500).send({
+                        res.status(403).send({
                             message: "invalid refresh token (refresh_token)"
                         });
                     } else {

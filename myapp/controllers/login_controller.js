@@ -9,7 +9,7 @@ exports.signUp = (req, res) => {
     // validate request
     if (!req.body) {
         // body 가 비어있을 때
-        res.status(400).send({
+        res.status(404).send({
             message: "content can not be empty"
         });
     }
@@ -36,7 +36,7 @@ exports.signUp = (req, res) => {
             } else {
                 Token.get_token(data.id, (err, result) => {
                     if(err){
-                        res.status(500).send({
+                        res.status(404).send({
                             message: "failed get token"
                         });
                     } else {
@@ -44,7 +44,7 @@ exports.signUp = (req, res) => {
                         jwt.verify(result.refresh_token, process.env.JWT_SECRET_KEY, (err, payload) => {
                             if(err){
                                 // invalid signature
-                                res.status(500).send({
+                                res.status(403).send({
                                     message: "failed create access token"
                                 });    
                             } else {
@@ -73,7 +73,7 @@ exports.signIn = (req, res) => {
     // validate request
     if (!req.body) {
         // body 가 비어있을 때
-        res.status(400).send({
+        res.status(404).send({
             message: "content can not be empty"
         });
     }
@@ -83,7 +83,7 @@ exports.signIn = (req, res) => {
         if(err){
             if(err.kind === "not_found"){
                 // id not exists
-                res.status(404).send({
+                res.status(401).send({
                     message: "id not exists"
                 });
             } else {
@@ -95,14 +95,14 @@ exports.signIn = (req, res) => {
         } else {
             if(!(await bcrypt.compare(req.body.password, results.password))) {
                 // password not matched
-                res.status(404).send({
+                res.status(401).send({
                     message: "password is incorrect"
                 });
             } else {
                 // success login
                 Token.get_token(req.body.id, (err, result) => {
                     if(err){
-                        res.status(404).send({
+                        res.status(500).send({
                             message: "failed get token"
                         });
                     } else {
