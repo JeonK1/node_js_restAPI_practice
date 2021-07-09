@@ -147,6 +147,27 @@ exports.regenerate_access_token = (req, res) => {
     });
 };
 
+exports.generate_access_token = (refresh_token, result) => {
+    jwt.verify(refresh_token, process.env.JWT_SECRET_KEY, (err, payload) => {
+        if(err){
+            // invalid signature
+            result({kind: "invalid_signature"}, null);
+            return ;
+        } else {
+            // valid signature
+            let decoded = jwt.decode(refresh_token);
+            let token_body = {
+                id: decoded.id
+            };
+            let new_access_token = jwt.sign(token_body, process.env.JWT_SECRET_KEY, {
+                expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRE
+            });
+            result(null, new_access_token);
+            return ;
+        }
+    });
+};
+
 exports.test = (req, res) => {
     res.status(200).send({
         message: "empty test"

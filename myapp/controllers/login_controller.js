@@ -41,21 +41,19 @@ exports.signUp = (req, res) => {
                         });
                     } else {
                         // send result
-                        jwt.verify(result.refresh_token, process.env.JWT_SECRET_KEY, (err, payload) => {
+                        Token.generate_access_token(result.refresh_token, (err, new_access_token) => {
                             if(err){
-                                // invalid signature
-                                res.status(403).send({
-                                    message: "failed create access token"
-                                });    
+                                if(err.kind=="invalid_signature") {
+                                    res.status(401).send({
+                                        message: "invalid refresh_token (signature)"
+                                    });                                                
+                                } else {
+                                    res.status(500).send({
+                                        message: err.message
+                                    });
+                                }
                             } else {
-                                // valid signature
-                                let decoded = jwt.decode(result.refresh_token);
-                                let token_body = {
-                                    id: decoded.id
-                                };
-                                let new_access_token = jwt.sign(token_body, process.env.JWT_SECRET_KEY, {
-                                    expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRE
-                                });
+                                // generate token success
                                 console.log("access token is " + new_access_token);
                                 res.setHeader("jwt-access-token", new_access_token); // set access token
                                 res.send(data);
@@ -107,21 +105,19 @@ exports.signIn = (req, res) => {
                         });
                     } else {
                         // send result
-                        jwt.verify(result.refresh_token, process.env.JWT_SECRET_KEY, (err, payload) => {
+                        Token.generate_access_token(result.refresh_token, (err, new_access_token) => {
                             if(err){
-                                // invalid signature
-                                res.status(500).send({
-                                    message: "failed create access token"
-                                });    
+                                if(err.kind=="invalid_signature") {
+                                    res.status(401).send({
+                                        message: "invalid refresh_token (signature)"
+                                    });                                                
+                                } else {
+                                    res.status(500).send({
+                                        message: err.message
+                                    });
+                                }
                             } else {
-                                // valid signature
-                                let decoded = jwt.decode(result.refresh_token);
-                                let token_body = {
-                                    id: decoded.id
-                                };
-                                let new_access_token = jwt.sign(token_body, process.env.JWT_SECRET_KEY, {
-                                    expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRE
-                                });
+                                // generate token success
                                 console.log("access token is " + new_access_token);
                                 console.log("refresh token is " + result.refresh_token);
                                 res.setHeader("jwt-access-token", new_access_token); // set access token
@@ -130,7 +126,7 @@ exports.signIn = (req, res) => {
                                     message: "login success"
                                 });
                             }
-                        });                 
+                        });                
                     }
                 });
             }
