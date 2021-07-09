@@ -1,8 +1,8 @@
 module.exports = app => {
-  const students = require("../controllers/student_controller");
-  const teachers = require("../controllers/teacher_controller");
-  const user = require("../controllers/login_controller");
-  const token = require("../controllers/token_controller");
+  const students = require("./controllers/student_controller");
+  const teachers = require("./controllers/teacher_controller");
+  const user = require("./controllers/login_controller");
+  const token = require("./controllers/token_controller");
 
   /**** Test ****/
   app.post("/token/test", token.test);

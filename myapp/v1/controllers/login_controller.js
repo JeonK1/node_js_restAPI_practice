@@ -1,5 +1,4 @@
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 const Teacher = require("../models/teacher_model");
 const Token = require("../controllers/token_controller");
 require('dotenv').config();

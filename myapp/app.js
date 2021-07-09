@@ -14,7 +14,7 @@ app.get("/", (req, res) => {
   res.json({message: "Node JS simple CRUD"});
 });
 
-require("./routes/route.js")(app);
+require("./v1/route.js")(app);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 3000;
