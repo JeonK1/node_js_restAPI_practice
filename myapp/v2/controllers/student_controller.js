@@ -3,105 +3,97 @@ const Student = require("../models/student_model");
 require('dotenv').config();
 
 // Create
-exports.create = (req, res) => {
+exports.create = async (req, res) => {
     // validate request
-    if (!req.body) {
+    if (Object.keys(req.body).length === 0) {
         // body 가 비어있을 때
         res.status(404).send({
             message: "content can not be empty"
         });
-    } else {
-        // validate access token
-        let access_token = req.get("jwt-access-token");
-        jwt.verify(access_token, process.env.JWT_SECRET_KEY, (err, payload) => {
-            if(err){
-                // invalid acccess token
-                res.status(403).send({
-                    message: err.message
-                });
-            } else {
-                // valid access token
-                // Create Student
-                const student = new Student({
-                    name: req.body.name,
-                    grade: req.body.grade,
-                    is_delete: req.body.is_delete,
-                });
+        return ;
+    } 
+    // validate access token
+    let access_token = req.get("jwt-access-token");
+    jwt.verify(access_token, process.env.JWT_SECRET_KEY, async (err, payload) => {
+        if(err){
+            // invalid acccess token
+            res.status(403).send({
+                message: err.message
+            });
+        } else {
+            // valid access token
+            // Create Student
+            const student = new Student({
+                name: req.body.name,
+                grade: req.body.grade,
+                is_delete: req.body.is_delete,
+            });
 
-                // Save in database
-                Student.create(student)
-                    .then(result => {
-                        res.send(result);
-                    })
-                    .catch(err => {
-                        res.status(500).send({
-                            message: err.message
-                        });
+            // Save in database
+            await Student.create(student)
+                .catch(err => {
+                    res.status(500).send({
+                        message: err.message
                     });
-            }
-        });
-    }
+                });
+            res.send(student);
+        }
+    });
 };
 
 // Update
-exports.update = (req, res) => {
+exports.update = async (req, res) => {
     // validate request
-    if (!req.body) {
+    if (Object.keys(req.body).length === 0) {
         // body 가 비어있을 때
         res.status(404).send({
             message: "content can not be empty"
         });
-    } else {
-        // validate access token
-        let access_token = req.get("jwt-access-token");
-        jwt.verify(access_token, process.env.JWT_SECRET_KEY, (err, payload) => {
-            if(err){
-                // invalid acccess token
-                res.status(403).send({
-                    message: err.message
+        return;
+    } 
+    // validate access token
+    let access_token = req.get("jwt-access-token");
+    jwt.verify(access_token, process.env.JWT_SECRET_KEY, async (err, payload) => {
+        if(err){
+            // invalid acccess token
+            res.status(403).send({
+                message: err.message
+            });
+        } else {
+            // valid access token
+            // Update in database
+            let student = await Student.updateById(req.params.studentId, new Student(req.body))
+                .catch(err => {
+                    if(err.message === "not_found"){
+                        res.status(404).send({
+                            message: `Not found Student with id ${req.params.studentId}`
+                        });
+                    } else {
+                        res.status(500).send({
+                            message: `Error updating Student with id ${req.params.studentId}`
+                        });
+                    }
                 });
-            } else {
-                // valid access token
-                // Update in database
-                Student.updateById(req.params.studentId, new Student(req.body))
-                    .then(result => {
-                        res.send(result);
-                    })
-                    .catch(err => {
-                        if(err.message === "not_found"){
-                            res.status(404).send({
-                                message: `Not found Student with id ${req.params.studentId}`
-                            });
-                        } else {
-                            res.status(500).send({
-                                message: `Error updating Student with id ${req.params.studentId}`
-                            });
-                        }
-                    });
-            }
-        });
-    }
+            res.send(student);
+        }
+    });
+
 };
 
 // Retrieve all
-exports.findAll = (req, res) => {
-    Student.getAll()
-        .then(result => {
-            res.send(result);
-        })
+exports.findAll = async (req, res) => {
+    let students = await Student.getAll()
         .catch(err => {
             res.status(500).send({
                 message: err.message
             });
         });
+    res.send(students);
 };
 
 // Retrieve by Id
-exports.findOne = (req, res) => {
-    Student.findById(req.params.studentId)
-        .then(result => {
-            res.send(result);
-        })
+exports.findOne = async (req, res) => {
+    let student = await Student.findById(req.params.studentId)
         .catch(err => {
             if(err.message === "not_found"){
                 res.status(404).send({
@@ -113,13 +105,14 @@ exports.findOne = (req, res) => {
                 });
             }
         });
+    res.send(student);
 };
 
 // Delete
-exports.delete = (req, res) => {
+exports.delete = async (req, res) => {
     // validate access token
     let access_token = req.get("jwt-access-token");
-    jwt.verify(access_token, process.env.JWT_SECRET_KEY, (err, payload) => {
+    jwt.verify(access_token, process.env.JWT_SECRET_KEY, async (err, payload) => {
         if(err){
             // invalid acccess token
             res.status(403).send({
@@ -128,12 +121,7 @@ exports.delete = (req, res) => {
         } else {
             // valid access token
             // remove student in database
-            Student.remove(req.params.studentId)
-                .then(result => {
-                    res.send({
-                        message: "Student delete successfully!"
-                    });
-                })
+            await Student.remove(req.params.studentId)
                 .catch(err => {
                     if(err.kind === "not_found"){
                         res.status(404).send({
@@ -145,6 +133,9 @@ exports.delete = (req, res) => {
                         });
                     }
                 });
+            res.send({
+                message: "Student delete successfully!"
+            });
         }
     });
 };

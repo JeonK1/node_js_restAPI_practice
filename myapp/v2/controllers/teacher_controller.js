@@ -1,13 +1,14 @@
 const Teacher = require("../models/teacher_model");
 
 // Create
-exports.create = (req, res) => {
+exports.create = async (req, res) => {
     // validate request
-    if (!req.body) {
+    if (Object.keys(req.body).length === 0) {
         // body 가 비어있을 때
         res.status(404).send({
             message: "content can not be empty"
         });
+        return ;
     }
 
     // Create Teacher
@@ -19,21 +20,19 @@ exports.create = (req, res) => {
     });
 
     // Save in database
-    Teacher.create(teacher)
-        .then(result => {
-            res.send(result);
-        })
+    let result = await Teacher.create(teacher)
         .catch(err => {
             res.status(500).send({
                 message: err.message
-            })
+            });
         });
+    res.send(result);
 };
 
 // Update
-exports.update = (req, res) => {
+exports.update = async (req, res) => {
     // validate request
-    if (!req.body) {
+    if (Object.keys(req.body).length === 0) {
         // body 가 비어있을 때
         res.status(404).send({
             message: "content can not be empty"
@@ -41,10 +40,7 @@ exports.update = (req, res) => {
     }
 
     // Update in database
-    Teacher.updateById(req.params.teacherId, new Teacher(req.body))
-        .then(result => {
-            res.send(result)
-        })
+    let result = await Teacher.updateById(req.params.teacherId, new Teacher(req.body))
         .catch(err => {
             if(err.message === "not_found"){
                 res.status(404).send({
@@ -56,27 +52,23 @@ exports.update = (req, res) => {
                 });
             }
         });
+    res.send(result);
 };
 
 // Retrieve all
-exports.findAll = (req, res) => {
-    Teacher.getAll()
-        .then(result => {
-            res.send(result);
-        })
+exports.findAll = async (req, res) => {
+    let results = await Teacher.getAll()
         .catch(err => {
             res.status(500).send({
                 message: err.message
             });
         });
+    res.send(results);
 };
 
 // Retrieve by Id
-exports.findOne = (req, res) => {
-    Teacher.findById(req.params.teacherId)
-        .then(result => {
-            res.send(result);
-        })
+exports.findOne = async (req, res) => {
+    let result = await Teacher.findById(req.params.teacherId)
         .catch(err => {
             if(err.message === "not_found"){
                 res.status(404).send({
@@ -88,16 +80,12 @@ exports.findOne = (req, res) => {
                 });
             }
         });
+    res.send(result);
 };
 
 // Delete
-exports.delete = (req, res) => {
-    Teacher.remove(req.params.teacherId)
-        .then(result => {
-            res.send({
-                message: "Student delete successfully!"
-            });            
-        })
+exports.delete = async (req, res) => {
+    await Teacher.remove(req.params.teacherId)
         .catch(err => {
             if(err.message === "not_found"){
                 res.status(404).send({
@@ -109,4 +97,7 @@ exports.delete = (req, res) => {
                 });
             }
         });
+    res.send({
+        message: "Student delete successfully!"
+    });            
 };

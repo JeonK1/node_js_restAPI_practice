@@ -37,7 +37,7 @@ Token.updateById = (id, new_refresh_token) => {
                 return ;
             }
             console.log("updated token: ", {id:id, refresh_token:new_refresh_token});
-            resolve(null, {id: id, refresh_token:new_refresh_token});
+            resolve({id: id, refresh_token:new_refresh_token});
         });        
     });
 };
