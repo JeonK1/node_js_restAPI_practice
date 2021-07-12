@@ -27,5 +27,5 @@ Node.js 학습용 Toy Backend RestfulAPI Project <br>
 -- jsonwebtoken: v8.5.1 <br>
 -- mysql: v2.18.1 <br>
 -- winston: v3.3.3 <br>
--- winston-daily-rotate-file: v4.5.5 <br><br>
+-- winston-daily-rotate-file: v4.5.5 <br>
 - javascript ES6 style <br>
