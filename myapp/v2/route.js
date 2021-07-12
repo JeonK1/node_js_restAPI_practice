@@ -4,9 +4,6 @@ module.exports = app => {
   const user = require("./controllers/login_controller");
   const token = require("./controllers/token_controller");
 
-  /**** Test ****/
-  app.post("/token/test", token.test);
-
   /**** Student ****/
   // Create Student
   app.post("/students", students.create);

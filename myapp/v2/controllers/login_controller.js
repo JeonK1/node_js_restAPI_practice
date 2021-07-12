@@ -1,3 +1,4 @@
+const log = require('../logger');
 const bcrypt = require("bcryptjs");
 const Teacher = require("../models/teacher_model");
 const Token = require("../controllers/token_controller");
@@ -8,6 +9,7 @@ exports.signUp = async (req, res) => {
     // validate request
     if (Object.keys(req.body).length === 0) {
         // body 가 비어있을 때
+        log.error("signup: content can not be empty");
         res.status(404).send({
             message: "content can not be empty"
         });
@@ -30,14 +32,17 @@ exports.signUp = async (req, res) => {
         let refresh_token = refresh_token_body.refresh_token;
         let new_access_token = await Token.generate_access_token(refresh_token);
         console.log("access token is " + new_access_token);
+        log.info("signup: success");
         res.setHeader("jwt-access-token", new_access_token); // set access token
         res.send(teacher);
     } catch (err) {
         if(err.message === "invalid_signature") {
+            log.error("signup: invalid refresh_token (signature)");
             res.status(401).send({
                 message: "invalid refresh_token (signature)"
             });                                                
         } else {
+            log.error(`signup: ${err.message}`);
             res.status(500).send({
                 message: err.message
             });
@@ -50,6 +55,7 @@ exports.signIn = async (req, res) => {
     // validate request
     if (Object.keys(req.body).length === 0) {
         // body 가 비어있을 때
+        log.error("signin: content can not be empty");
         res.status(404).send({
             message: "content can not be empty"
         });
@@ -70,27 +76,32 @@ exports.signIn = async (req, res) => {
         console.log("refresh token is " + cur_refresh_token);
         res.setHeader("jwt-access-token", new_access_token); // set access token
         res.setHeader("jwt-refresh-token", cur_refresh_token); // set refresh token
+        log.info("signin: success");
         res.status(200).send({
             message: "login success"
         });
     } catch (err) {
         if(err.message === "not_found"){
             // id not exists
+            log.error("signin: id not exist");
             res.status(401).send({
                 message: "id not exists"
             });
         } else if(err.message === "invalid_signature") {
             // invalid refresh_token
+            log.error("signin: invalid refresh_token (signature)");
             res.status(401).send({
                 message: "invalid refresh_token (signature)"
             });
         } else if(err.message === "password_not_match") {
             // password not matched
+            log.error("signin: password is incorrect");
             res.status(401).send({
                 message: "password is incorrect"
             });
         } else {
             // error
+            log.error(`signin: ${err.message}`);
             res.status(500).send({
                 message: err.message
             });    

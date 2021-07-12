@@ -1,3 +1,4 @@
+const log = require('../logger');
 const sql = require("./db");
 
 // constructor
@@ -11,11 +12,11 @@ Token.create = (newToken) => {
     return new Promise((resolve, reject) => {
         sql.query("INSERT INTO token SET ?", newToken, (err, res) => {
             if(err) {
-                console.log("[model.js] token create error : ", err);
+                log.error("[model.js] token create error : ", err.message);
                 reject(err);
                 return ;
             }
-            console.log("create token: ", {...newToken});
+            log.info("create token: ", {...newToken});
             resolve({...newToken});
         });
     });
@@ -27,7 +28,7 @@ Token.updateById = (id, new_refresh_token) => {
         sql.query("UPDATE token SET refresh_token = ? WHERE id = ?",
         [new_refresh_token, id], (err, res) => {
             if(err){
-                console.log("[model.js] token updateById error : ", err);
+                log.error("[model.js] token updateById error : ", err.message);
                 reject(err);
                 return ;
             }
@@ -36,7 +37,7 @@ Token.updateById = (id, new_refresh_token) => {
                 reject({message: "not_found"});
                 return ;
             }
-            console.log("updated token: ", {id:id, refresh_token:new_refresh_token});
+            log.info("updated token: ", {id:id, refresh_token:new_refresh_token});
             resolve({id: id, refresh_token:new_refresh_token});
         });        
     });
@@ -47,7 +48,7 @@ Token.findById = (id) => {
     return new Promise((resolve, reject) => {
         sql.query(`SELECT * FROM token WHERE id=\"${id}\"`, (err, res) => {
             if(err) {
-                console.log("[model.js] token findById error : ", err);
+                log.error("[model.js] token findById error : ", err.message);
                 reject(err);
                 return ;
             }
@@ -55,7 +56,7 @@ Token.findById = (id) => {
                 reject({message: "not_found"}); // not found
                 return ;
             }
-            console.log("found token: ", res[0]);
+            log.info("found token: ", res[0]);
             resolve(res[0]);
         });
     });
@@ -66,7 +67,7 @@ Token.remove = (id) => {
     return new Promise((resolve, reject) => {
         sql.query("DELETE FROM token WHERE id = ?", id, (err, res) => {
             if(err){
-                console.log("[model.js] token remove error : ", err);
+                log.error("[model.js] token remove error : ", err.message);
                 reject(err);
                 return ;            
             }
@@ -76,7 +77,7 @@ Token.remove = (id) => {
                 reject({message: "not_found"});
                 return ;
             }
-            console.log("delete token with id: ", id);
+            log.info("delete token with id: ", id);
             resolve(res);
         });
     });

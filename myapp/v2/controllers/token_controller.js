@@ -1,3 +1,4 @@
+const log = require('../logger');
 const jwt = require("jsonwebtoken");
 const Token = require("../models/token_model");
 require('dotenv').config()
@@ -26,8 +27,10 @@ exports.get_token = async (id) => {
                         .catch(err => {
                             reject(err);
                         });
+                    log.info(`get_token: create new token`);
                     resolve(result);
                 } else {
+                    log.error(`get_token: ${err.message}`);
                     reject(err);
                 }
             });
@@ -40,6 +43,7 @@ exports.regenerate_refresh_token = async (req, res) => {
     jwt.verify(refresh_token, process.env.JWT_SECRET_KEY, async (err, decoded) => {
         if(err){
             // invalid signature
+            log.error(`regenerate_refresh_token: invalid refresh_token (signature)`);
             res.status(401).send({
                 message: "invalid refresh_token (signature)"
             })
@@ -50,6 +54,7 @@ exports.regenerate_refresh_token = async (req, res) => {
             let result_body = await Token.findById(decoded.id);
             if(refresh_token !== result_body.refresh_token){
                 // invalid refresh_token
+                log.error(`regenerate_refresh_token: invalid refresh token (refresh_token)`);
                 res.status(403).send({
                     message: "invalid refresh token (refresh_token)"
                 });
@@ -64,15 +69,18 @@ exports.regenerate_refresh_token = async (req, res) => {
             });
             // Save in database
             let updated_token = await Token.updateById(decoded.id, new_refresh_token);
+            log.info(`regenerate_refresh_token: success`);
             res.send(updated_token);
         } catch (err) {
             if(err.message === "not_found"){
                 // not exists id in db error
+                log.error(`regenerate_refresh_token: invalid refresh_token (id)`);
                 res.status(403).send({
                     message: "invalid refresh_token (id)"
                 });                 
             } else {
                 // error
+                log.error(`regenerate_refresh_token: ${err.message}`);
                 res.status(500).send({
                     message: err.message
                 });                        
@@ -86,6 +94,7 @@ exports.regenerate_access_token = async (req, res) => {
     jwt.verify(refresh_token, "jwtsecret", async (err, decoded) => {
         if(err){
             // invalid signature
+            log.error(`regenerate_access_token: invalid refresh_token (signature)`);
             res.status(401).send({
                 message: "invalid refresh_token (signature)"
             });
@@ -96,6 +105,7 @@ exports.regenerate_access_token = async (req, res) => {
             let result = await Token.findById(decoded.id);
             if(refresh_token !== result.refresh_token){
                 // invalid refresh_token
+                log.error(`regenerate_access_token: invalid refresh_token (refresh_token)`);
                 res.status(403).send({
                     message: "invalid refresh token (refresh_token)"
                 });
@@ -109,17 +119,20 @@ exports.regenerate_access_token = async (req, res) => {
                 expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRE
             });
             res.setHeader("jwt-access-token", new_access_token);
+            log.info(`regenerate_access_token: success`);
             res.status(200).send({
                 message: "success regenerate access token"
             });
         } catch (err) {
             if(err.message === "not_found"){
                 // not exists id in db error
+                log.error(`regenerate_access_token: invalid refresh_token (id)`);
                 res.status(403).send({
                     message: "invalid refresh_token (id)"
                 });
             } else {
                 // error
+                log.error(`regenerate_access_token: ${err.message}`);
                 res.status(500).send({
                     message: err.message
                 });
@@ -133,6 +146,7 @@ exports.generate_access_token = (refresh_token) => {
         jwt.verify(refresh_token, process.env.JWT_SECRET_KEY, (err, decoded) => {
             if(err){
                 // invalid signature
+                log.error(`generate_access_token: invalid_signature`);
                 reject({message: "invalid_signature"});
                 return ;
             } else {
@@ -143,15 +157,10 @@ exports.generate_access_token = (refresh_token) => {
                 let new_access_token = jwt.sign(token_body, process.env.JWT_SECRET_KEY, {
                     expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRE
                 });
+                log.info(`generate_access_token: success`);
                 resolve(new_access_token);
                 return ;
             }
         });
-    });
-};
-
-exports.test = (req, res) => {
-    res.status(200).send({
-        message: "empty test"
     });
 };

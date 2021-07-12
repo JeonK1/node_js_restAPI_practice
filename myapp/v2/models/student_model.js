@@ -1,3 +1,4 @@
+const log = require('../logger');
 const sql = require("./db");
 
 // constructor
@@ -12,11 +13,11 @@ Student.create = (newStudent) => {
     return new Promise((resolve, reject) => {
         sql.query("INSERT INTO student SET ?", newStudent, (err, res) => {
             if(err) {
-                console.log("[model.js] student create error : ", err);
+                log.error("[model.js] student create error : ", err.message);
                 reject(err);
                 return ;
             }
-            console.log("create student: ", {id: res.insertId, ...newStudent});
+            log.info("create student: ", {id: res.insertId, ...newStudent});
             resolve({id:res.insertId, ...newStudent});
         });    
     });
@@ -28,7 +29,7 @@ Student.updateById = (id, student) => {
         sql.query("UPDATE student SET name = ?, grade = ?, is_delete = ? WHERE id = ?",
         [student.name, student.grade, student.is_delete, id], (err, res) => {
             if(err){
-                console.log("[model.js] student updateById error : ", err);
+                log.error("[model.js] student updateById error : ", err.message);
                 reject(err);
                 return ;
             }
@@ -37,7 +38,7 @@ Student.updateById = (id, student) => {
                 reject({message: "not_found"});
                 return ;
             }
-            console.log("updated student: ", {id:id, ...student});
+            log.info("updated student: ", {id:id, ...student});
             resolve({id: id, ...student});
         });
     });
@@ -48,7 +49,7 @@ Student.findById = (id) => {
     return new Promise((resolve, reject) => {
         sql.query(`SELECT * FROM student WHERE id=${id}`, (err, res) => {
             if(err) {
-                console.log("[model.js] student findById error : ", err);
+                log.error("[model.js] student findById error : ", err.message);
                 reject(err);
                 return ;
             }
@@ -56,7 +57,7 @@ Student.findById = (id) => {
                 reject({message: "not_found"}); // not found
                 return ;
             }
-            console.log("found student: ", res[0]);
+            log.info("found student: ", res[0]);
             resolve(res[0]);
         });
     });
@@ -67,11 +68,11 @@ Student.getAll = () => {
     return new Promise((resolve, reject) => {
         sql.query("SELECT * FROM student", (err, res) => {
             if(err){
-                console.log("[model.js] student getAll error : ", err);
+                log.error("[model.js] student getAll error : ", err.message);
                 reject(err);
                 return ;
             }
-            console.log("student: ", res);
+            log.info("student: ", res);
             resolve(res);
         });    
     });
@@ -82,7 +83,7 @@ Student.remove = (id) => {
     return new Promise((resolve, reject) => {
         sql.query("DELETE FROM student WHERE id = ?", id, (err, res) => {
             if(err){
-                console.log("[model.js] student remove error : ", err);
+                log.error("[model.js] student remove error : ", err.message);
                 reject(err);
                 return ;            
             }
@@ -91,7 +92,7 @@ Student.remove = (id) => {
                 reject({message: "not_found"});
                 return ;
             }
-            console.log("delete student with id: ", id);
+            log.info("delete student with id: ", id);
             resolve(res);
         });        
     });
