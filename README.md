@@ -13,13 +13,14 @@ Node.js 학습용 Toy Backend RestfulAPI Project <br>
 - <a href="https://blog.naver.com/ponson1017/222426045690">6. code review and extensional work</a><br>
 - <a href="https://blog.naver.com/ponson1017/222427826700">7. Logging with winston</a><br>
 <h2>개발환경</h2>
-@ Node.js: v14.17.2 <br>
- - bcryptjs: v2.4.3 <br>
- - body-parser: v1.19.0 <br>
- - dotenv: v10.0.0 <br>
- - express: v4.16.1 <br>
- - jsonwebtoken: v8.5.1 <br>
- - mysql: v2.18.1 <br>
- - winston: v3.3.3 <br>
- - winston-daily-rotate-file: v4.5.5 <br>
-@ javascript ES6 style
+- Node.js: v14.17.2 <br>
+ + bcryptjs: v2.4.3 <br>
+ + body-parser: v1.19.0 <br>
+ + dotenv: v10.0.0 <br>
+ + express: v4.16.1 <br>
+ + jsonwebtoken: v8.5.1 <br>
+ + mysql: v2.18.1 <br>
+ + winston: v3.3.3 <br>
+ + winston-daily-rotate-file: v4.5.5 <br>
+
+- javascript ES6 style
